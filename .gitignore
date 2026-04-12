@@ -1,9 +1,29 @@
-# Virtual environment
+# Python
 venv/
-
-# Python cache
 __pycache__/
 *.pyc
+*.pyo
+.Python
+*.egg-info/
 
-# Jupyter
+# Jupyter checkpoints
 .ipynb_checkpoints/
+
+# Large data files — too big for GitHub
+model/X_scaled.csv
+model/y.csv
+model/segmented_customers.csv
+model/retention_strategies.csv
+
+# Environment
+.env
+
+# Docker
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/

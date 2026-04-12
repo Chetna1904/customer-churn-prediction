@@ -1,0 +1,54 @@
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: churn_postgres
+    environment:
+      POSTGRES_DB: churndb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: churn_fastapi
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./model:/app/model
+    environment:
+      - DATABASE_URL=postgresql://postgres:password123@postgres:5432/churndb
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: churn_streamlit
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./model:/app/model
+    environment:
+      - FASTAPI_URL=http://fastapi:8000
+    depends_on:
+      - fastapi
+    restart: always
+
+volumes:
+  postgres_data:
